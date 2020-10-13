@@ -6,7 +6,6 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 
 #loading the data
-
 data_train = pd.read_csv("mini-competitionAAA/data/train.csv")
 store = pd.read_csv("mini-competitionAAA/data/store.csv")
 
