@@ -41,21 +41,21 @@ y_train = data.loc[:, "Sales"]
 # defining evaluation metric
 def compute_rmse(actual, prediction):
     """
-    Computs RMSE (root mean squared error) between predictions from a model
+    Computes RMSE (root mean squared error) between predictions from a model
     and the actual values of the target variable.
     """
     
     rmse = sqrt(mean_squared_error(actual, prediction))
     
     # rounding to 2 decimal places
-    print('RMSE is ', round(rmse,2))
+    print('RMSE is ', round(rmse, 2))
     
     return rmse
 
 lazy_estimator_predictions = pd.DataFrame(y_train.copy())
 
 # using median of entire training set
-lazy_estimator_predictions.loc[:,'lazy_predicted_price'] = y_train.mean()
+lazy_estimator_predictions.loc[:, 'lazy_predicted_price'] = y_train.mean()
 lazy_estimator_predictions.head().round()
 
 lazy_estimator_rmse = compute_rmse(y_train, lazy_estimator_predictions.loc[:, 'lazy_predicted_price'])
