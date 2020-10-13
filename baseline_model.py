@@ -1,67 +1,55 @@
 #importing libraries
-
 import pandas as pd
 import numpy as np
-from matplotlib import pyplot as plt
-import seaborn as sns
 from math import sqrt
 
-
-#loading the data
-
-data_train = pd.read_csv("data/train.csv")
-store = pd.read_csv("data/store.csv")
-
-#getting rid of null values in the store column of the train set
-data_train = data_train[~(data_train.loc[:, "Store"].isnull())]
-
-# changing the store type to in before mergin with the stor table
-data_train.loc[:, "Store"] = data_train.loc[:, "Store"].astype('int64')
-
-# mering the store table with the train table
-data = pd.merge(data_train, store, how='left', on='Store')
-
-# droping lots of columns
-data = data.drop(columns=["CompetitionOpenSinceMonth", "CompetitionOpenSinceYear", "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval", "Date", "StateHoliday", "SchoolHoliday", "Assortment", "StoreType"])
-
-# dropping the rows with null values
-data = data[~(data.loc[:, "DayOfWeek"].isnull()) &
-            ~(data.loc[:, "Sales"].isnull()) &
-            ~(data.loc[:, "Customers"].isnull()) &
-            ~(data.loc[:, "Open"].isnull()) &
-            ~(data.loc[:, "Promo"].isnull()) &
-            ~(data.loc[:, "CompetitionDistance"].isnull()) &
-            ~(data.loc[:, "Sales"] == 0.0)]
+#dropping columns and rows with null values
+def delete_nulls(data):
+    data = data.drop(columns=["CompetitionOpenSinceMonth", "CompetitionOpenSinceYear",
+                              "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval", 
+                              "Date", "StateHoliday", "SchoolHoliday", 
+                              "Assortment", "StoreType"])
+    data = data[~(data.loc[:, "DayOfWeek"].isnull()) &
+                ~(data.loc[:, "Sales"].isnull()) &
+                ~(data.loc[:, "Customers"].isnull()) &
+                ~(data.loc[:, "Open"].isnull()) &
+                ~(data.loc[:, "Promo"].isnull()) &
+                ~(data.loc[:, "CompetitionDistance"].isnull()) &
+                ~(data.loc[:, "Sales"] == 0.0)]
+    return data
 
 # splitting features and target back apart
-x_train = data.copy(deep=True).drop(columns=["Sales"])
-y_train = data.loc[:, "Sales"]
+def split(data):
+    x_train = data.copy(deep=True).drop(columns=["Sales"])
+    y_train = data.loc[:, "Sales"]
+    return x_train, y_train
 
+# using the mean of the entire training set as a first prediction
+def lazy_estimator(target):
+    lazy_estimator_predictions = pd.DataFrame(target.copy())
+    lazy_estimator_predictions.loc[:, 'lazy_predicted_price'] = target.mean()
+    predict = lazy_estimator_predictions.loc[:, 'lazy_predicted_price']
+    return predict
 
 # defining evaluation metric
 def compute_rmspe(actual, prediction):
-    """
-    Computes RMSE (root mean squared error) between predictions from a model
-    and the actual values of the target variable.
-    """
+    rmspe = np.sqrt(np.mean(np.square(((actual - prediction) / actual)), axis=0)) 
+    return rmspe
 
-    rmspe = np.sqrt(np.mean(np.square(((actual - prediction) / actual)), axis=0))
+# our baseline model using the functions defined above
+def baseline(data):
+    # deleting rows with null values and getting rid of some columns
+    cleaned_data = delete_nulls(data)
+    
+    # splitting the data into features and target
+    X, y = split(cleaned_data)
+    
+    # calculating the prediction which is simply the mean here
+    predict = lazy_estimator(y)
+    
+    # computing the RMSPE of the difference between the prediction and the target
+    rmspe = compute_rmspe(y, predict)
+
+    print("the RMSPE of the baseline model (mean) is {}".format(rmspe.round(4)))
 
     
-    rmse = sqrt(mean_squared_error(actual, prediction))
-    
-    # rounding to 2 decimal places
-    print('RMSE is ', round(rmse, 2))
-    
-    return rmse
-
-lazy_estimator_predictions = pd.DataFrame(y_train.copy())
-
-# using median of entire training set
-lazy_estimator_predictions.loc[:, 'lazy_predicted_price'] = y_train.mean()
-lazy_estimator_predictions.head().round()
-
-lazy_estimator_rmspe = compute_rmspe(y_train, lazy_estimator_predictions.loc[:, 'lazy_predicted_sales'])
-
-print("the predicte value of the baseline model (mean) is {}".format(lazy_estimator_predictions.iloc[2, 1]))
-print("the RMSPE of the baseline model (mean) is {}".format(lazy_estimator_rmspe))
