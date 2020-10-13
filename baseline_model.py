@@ -60,4 +60,6 @@ lazy_estimator_predictions.head().round()
 
 lazy_estimator_rmse = compute_rmse(y_train, lazy_estimator_predictions.loc[:, 'lazy_predicted_price'])
 
-lazy_estimator_rmse
+
+print("the predicte value of the baseline model (mean) is {}".format(lazy_estimator_predictions.iloc[2, 1]))
+print("the RMSE of the baseline model (mean) is {}".format(lazy_estimator_rmse))
