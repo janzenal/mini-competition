@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 import seaborn as sns
-from sklearn.metrics import mean_squared_error
 from math import sqrt
 
 
@@ -31,7 +30,8 @@ data = data[~(data.loc[:, "DayOfWeek"].isnull()) &
             ~(data.loc[:, "Customers"].isnull()) &
             ~(data.loc[:, "Open"].isnull()) &
             ~(data.loc[:, "Promo"].isnull()) &
-            ~(data.loc[:, "CompetitionDistance"].isnull())]
+            ~(data.loc[:, "CompetitionDistance"].isnull()) &
+            ~(data.loc[:, "Sales"] == 0.0)]
 
 # splitting features and target back apart
 x_train = data.copy(deep=True).drop(columns=["Sales"])
@@ -39,27 +39,24 @@ y_train = data.loc[:, "Sales"]
 
 
 # defining evaluation metric
-def compute_rmse(actual, prediction):
+def compute_rmspe(actual, prediction):
     """
-    Computs RMSE (root mean squared error) between predictions from a model
+    Computs RMSPE (root mean squared percentage error) between predictions from a model
     and the actual values of the target variable.
     """
+
+    rmspe = np.sqrt(np.mean(np.square(((actual - prediction) / actual)), axis=0))
+
     
-    rmse = sqrt(mean_squared_error(actual, prediction))
-    
-    # rounding to 2 decimal places
-    print('RMSE is ', round(rmse,2))
-    
-    return rmse
+    return rmspe
 
 lazy_estimator_predictions = pd.DataFrame(y_train.copy())
 
 # using median of entire training set
-lazy_estimator_predictions.loc[:,'lazy_predicted_price'] = y_train.mean()
+lazy_estimator_predictions.loc[:,'lazy_predicted_sales'] = y_train.mean()
 lazy_estimator_predictions.head().round()
 
-lazy_estimator_rmse = compute_rmse(y_train, lazy_estimator_predictions.loc[:, 'lazy_predicted_price'])
-
+lazy_estimator_rmspe = compute_rmspe(y_train, lazy_estimator_predictions.loc[:, 'lazy_predicted_sales'])
 
 print("the predicte value of the baseline model (mean) is {}".format(lazy_estimator_predictions.iloc[2, 1]))
-print("the RMSE of the baseline model (mean) is {}".format(lazy_estimator_rmse))
+print("the RMSPE of the baseline model (mean) is {}".format(lazy_estimator_rmspe))
