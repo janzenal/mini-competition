@@ -1,19 +1,18 @@
-#importing libraries
-
 import pandas as pd
-import numpy as np
-from matplotlib import pyplot as plt
-import seaborn as sns
 
-#loading the data
-data_train = pd.read_csv("mini-competitionAAA/data/train.csv")
-store = pd.read_csv("mini-competitionAAA/data/store.csv")
+def loading_data(data1, data2):
+    #loading the data
 
-#getting rid of null values in the store column of the train set
-data_train = data_train[~(data_train.loc[:, "Store"].isnull())]
+    data1 = pd.read_csv("data/{}.csv".format(data1))
+    data2 = pd.read_csv("data/{}.csv".format(data2))
 
-# changing the store type to in before mergin with the store table
-data_train.loc[:, "Store"] = data_train.loc[:, "Store"].astype('int64')
+    #getting rid of null values in the store column of the train set
+    data1 = data1[~(data1.loc[:, "Store"].isnull())]
 
-# merging the store table with the train table
-data = pd.merge(data_train, store, how='left', on='Store')
+    # changing the store type to in before mergin with the stor table
+    data1.loc[:, "Store"] = data1.loc[:, "Store"].astype('int64')
+
+    # merging the store table with the train table
+    data2 = pd.merge(data1, data2, how='left', on='Store')
+
+    return data
