@@ -8,6 +8,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
 from sklearn.ensemble import RandomForestRegressor
+from sklearn import tree
 
 # mean encoding function
 def mean_encode(data, col, on):
@@ -147,3 +148,24 @@ def random_forest_regressor(data):
     rmspe = compute_rmspe(y_test, predict)
 
     print("the RMSPE of the random forest model is {}".format(rmspe.round(4)))
+
+# our decision trees regressor model using the functions defined above
+def decision_trees_regressor(data):
+    #encode and transform
+    encoded_data = encode(data)
+    
+    # deleting rows with null values and getting rid of some columns
+    cleaned_data = delete_nulls(encoded_data)
+    
+    # splitting the data into features and target
+    X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
+    
+    # decision tree regression model
+    dtc = tree.DecisionTreeRegressor(max_depth=5, random_state=42, criterion='mse')
+    dtc.fit(X_train, y_train)
+    predict = dtc.predict(X_test)
+    
+    # computing the RMSPE of the difference between the prediction and the target
+    rmspe = compute_rmspe(y_test, predict)
+
+    print("the RMSPE of the decision trees regressor model is {}".format(rmspe.round(4)))
