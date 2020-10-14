@@ -4,6 +4,7 @@ import numpy as np
 from math import sqrt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 
 # mean encoding function
 def mean_encode(data, col, on):
@@ -38,8 +39,7 @@ def encode(data):
 #drop columns and rows with null values
 def delete_nulls(data):
     data = data.drop(columns=["CompetitionOpenSinceMonth", "CompetitionOpenSinceYear",
-                              "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval", 
-                              "Date"])
+                              "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval", "Date"])
     data = data[~(data.loc[:, "DayOfWeek"].isnull()) &
                 ~(data.loc[:, "Sales"].isnull()) &
                 ~(data.loc[:, "Customers"].isnull()) &
@@ -51,10 +51,14 @@ def delete_nulls(data):
     return data
 
 # splitting features and target apart
-def split(data):
+def split_train_test(data):
     x_train = data.copy(deep=True).drop(columns=["Sales"])
     y_train = data.loc[:, "Sales"]
-    return x_train, y_train
+    
+    # train, test split
+    X_train,X_test,y_train,y_test = train_test_split(x_train, y_train, test_size=0.2, shuffle=False)
+    
+    return X_train, X_test, y_train, y_test
 
 # defining evaluation metric
 def compute_rmspe(actual, prediction):
@@ -70,14 +74,14 @@ def linear_regression(data):
     cleaned_data = delete_nulls(encoded_data)
     
     # splitting the data into features and target
-    X, y = split(cleaned_data)
+    X_train, X_test, y_train, y_test = split_train_test(cleaned_data)
     
     # linear regression model
     lr = LinearRegression()
-    lr.fit(X, y)
-    predict = lr.predict(X)
+    lr.fit(X_train, y_train)
+    predict = lr.predict(X_test)
     
     # computing the RMSPE of the difference between the prediction and the target
-    rmspe = compute_rmspe(y, predict)
+    rmspe = compute_rmspe(y_test, predict)
 
     print("the RMSPE of the linear regression model is {}".format(rmspe.round(4)))
