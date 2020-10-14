@@ -5,6 +5,7 @@ from math import sqrt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
 
 # mean encoding function
 def mean_encode(data, col, on):
@@ -60,6 +61,12 @@ def split_train_test(data):
     
     return X_train, X_test, y_train, y_test
 
+# feature scaling
+def scaler(data):
+    std_scale = preprocessing.StandardScaler().fit(data)
+    df_std = std_scale.transform(data)
+    return df_std
+
 # defining evaluation metric
 def compute_rmspe(actual, prediction):
     rmspe = np.sqrt(np.mean(np.square(((actual - prediction) / actual)), axis=0)) 
@@ -72,9 +79,13 @@ def linear_regression(data):
     
     # deleting rows with null values and getting rid of some columns
     cleaned_data = delete_nulls(encoded_data)
-    
+        
     # splitting the data into features and target
     X_train, X_test, y_train, y_test = split_train_test(cleaned_data)
+    
+    # scaling the features for train and test set
+    X_train = scaler(X_train)
+    X_test = scaler(X_test)
     
     # linear regression model
     lr = LinearRegression()
