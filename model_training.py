@@ -45,7 +45,7 @@ def encode(data):
 #drop columns and rows with null values
 def delete_nulls(data):
     data = data.drop(columns=["CompetitionOpenSinceMonth", "CompetitionOpenSinceYear",
-                              "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval", "Date"])
+                              "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval", "Date", "Promo2"])
     data = data[~(data.loc[:, "DayOfWeek"].isnull()) &
                 ~(data.loc[:, "Sales"].isnull()) &
                 ~(data.loc[:, "Customers"].isnull()) &
@@ -85,7 +85,7 @@ def compute_rmspe(actual, prediction):
 
 # our linear regression model using the functions defined above
 def linear_regression(data, est=1, maxdep=1):
-    #encode and transform
+    # encode and transform
     encoded_data = encode(data)
     
     # deleting rows with null values and getting rid of some columns
@@ -110,7 +110,7 @@ def linear_regression(data, est=1, maxdep=1):
 
 # our extra trees model using the functions defined above
 def extra_trees_regressor(data, est, maxdep):
-    #encode and transform
+    # encode and transform
     encoded_data = encode(data)
     
     # deleting rows with null values and getting rid of some columns
@@ -131,7 +131,7 @@ def extra_trees_regressor(data, est, maxdep):
 
 # our random forest model using the functions defined above
 def random_forest_regressor(data, est, maxdep):
-    #encode and transform
+    # encode and transform
     encoded_data = encode(data)
     
     # deleting rows with null values and getting rid of some columns
@@ -152,7 +152,7 @@ def random_forest_regressor(data, est, maxdep):
 
 # our decision trees regressor model using the functions defined above
 def decision_trees_regressor(data, maxdep, est=1):
-    #encode and transform
+    # encode and transform
     encoded_data = encode(data)
     
     # deleting rows with null values and getting rid of some columns
@@ -173,7 +173,7 @@ def decision_trees_regressor(data, maxdep, est=1):
     
 # our boosted trees regressor model using the functions defined above
 def xgb_regressor(data, est, maxdep):
-    #encode and transform
+    # encode and transform
     encoded_data = encode(data)
     
     # deleting rows with null values and getting rid of some columns
@@ -193,3 +193,13 @@ def xgb_regressor(data, est, maxdep):
 
     return rmspe.round(4)
 
+#min = 1
+#estimators = 150
+#max_depth = 10
+#for i in range(10, 100, 10):
+#    for j in range(3, 10):
+#        if xgb_regressor(data, i, j) < min:
+#            min = xgb_regressor(data, i, j)
+#            estimators = i
+#            max_depth = j
+#print(min, estimators, max_depth)

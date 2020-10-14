@@ -45,7 +45,7 @@ def encode(data):
 #drop columns and rows with null values
 def delete_nulls(data):
     data = data.drop(columns=["CompetitionOpenSinceMonth", "CompetitionOpenSinceYear",
-                              "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval", "Date"])
+                              "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval", "Date", "Promo2"])
     data = data[~(data.loc[:, "DayOfWeek"].isnull()) &
                 ~(data.loc[:, "Sales"].isnull()) &
                 ~(data.loc[:, "Customers"].isnull()) &
@@ -85,7 +85,7 @@ def compute_rmspe(actual, prediction):
 
 # our linear regression model using the functions defined above
 def linear_regression(data):
-    #encode and transform
+    # encode and transform
     encoded_data = encode(data)
     
     # deleting rows with null values and getting rid of some columns
@@ -104,13 +104,13 @@ def linear_regression(data):
     predict = lr.predict(X_test)
     
     # computing the RMSPE of the difference between the prediction and the target
-    rmspe = compute_rmspe(y_test, predict)
+    rmspe = compute_rmspe(y_test, predict)*100
 
-    print("the RMSPE of the linear regression model is {}".format(rmspe.round(4)))
+    print("the RMSPE of the linear regression model is {}%".format(rmspe.round(4)))
 
 # our extra trees model using the functions defined above
 def extra_trees_regressor(data):
-    #encode and transform
+    # encode and transform
     encoded_data = encode(data)
     
     # deleting rows with null values and getting rid of some columns
@@ -125,13 +125,13 @@ def extra_trees_regressor(data):
     predict = et.predict(X_test)
     
     # computing the RMSPE of the difference between the prediction and the target
-    rmspe = compute_rmspe(y_test, predict)
+    rmspe = compute_rmspe(y_test, predict)*100
 
-    print("the RMSPE of the extra trees model is {}".format(rmspe.round(4)))
+    print("the RMSPE of the extra trees model is {}%".format(rmspe.round(4)))
 
 # our random forest model using the functions defined above
 def random_forest_regressor(data):
-    #encode and transform
+    # encode and transform
     encoded_data = encode(data)
     
     # deleting rows with null values and getting rid of some columns
@@ -146,13 +146,13 @@ def random_forest_regressor(data):
     predict = rt.predict(X_test)
     
     # computing the RMSPE of the difference between the prediction and the target
-    rmspe = compute_rmspe(y_test, predict)
+    rmspe = compute_rmspe(y_test, predict)*100
 
-    print("the RMSPE of the random forest model is {}".format(rmspe.round(4)))
+    print("the RMSPE of the random forest model is {}%".format(rmspe.round(4)))
 
 # our decision trees regressor model using the functions defined above
 def decision_trees_regressor(data):
-    #encode and transform
+    # encode and transform
     encoded_data = encode(data)
     
     # deleting rows with null values and getting rid of some columns
@@ -167,13 +167,13 @@ def decision_trees_regressor(data):
     predict = dtc.predict(X_test)
     
     # computing the RMSPE of the difference between the prediction and the target
-    rmspe = compute_rmspe(y_test, predict)
+    rmspe = compute_rmspe(y_test, predict)*100
 
-    print("the RMSPE of the decision trees regressor model is {}".format(rmspe.round(4)))
+    print("the RMSPE of the decision trees regressor model is {}%".format(rmspe.round(4)))
     
 # our boosted trees regressor model using the functions defined above
 def xgb_regressor(data):
-    #encode and transform
+    # encode and transform
     encoded_data = encode(data)
     
     # deleting rows with null values and getting rid of some columns
@@ -189,6 +189,6 @@ def xgb_regressor(data):
 
     
     # computing the RMSPE of the difference between the prediction and the target
-    rmspe = compute_rmspe(y_test, predict)
+    rmspe = compute_rmspe(y_test, predict)*100
 
-    print("the RMSPE of the boosted trees model is {}".format(rmspe.round(4)))
+    print("the RMSPE of the boosted trees model is {}%".format(rmspe.round(4)))
