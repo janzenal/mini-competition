@@ -171,7 +171,7 @@ def decision_trees_regressor(data):
 
     print("the RMSPE of the decision trees regressor model is {}".format(rmspe.round(4)))
     
-# our decision trees regressor model using the functions defined above
+# our boosted trees regressor model using the functions defined above
 def xgb_regressor(data):
     #encode and transform
     encoded_data = encode(data)
@@ -183,8 +183,8 @@ def xgb_regressor(data):
     X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
     
     # decision tree regression model
-    xgbr = xgb.XGBRegressor(max_depth=9,learning_rate=0.1,n_estimators=50,n_jobs=1)
-    xgbr.fit(X_train,y_train)
+    xgbr = xgb.XGBRegressor(max_depth=9,learning_rate=0.1,n_estimators=90,n_jobs=1)
+    xgbr.fit(X_train, y_train)
     predict = xgbr.predict(X_test)
 
     

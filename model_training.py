@@ -8,6 +8,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
 from sklearn.ensemble import RandomForestRegressor
+from sklearn import tree
+import xgboost as xgb
 
 # mean encoding function
 def mean_encode(data, col, on):
@@ -142,6 +144,49 @@ def random_forest_regressor(data, est, maxdep):
     rt = RandomForestRegressor(criterion='mse',n_estimators=est,max_depth=maxdep,n_jobs=-1)
     rt.fit(X_train, y_train)
     predict = rt.predict(X_val)
+    
+    # computing the RMSPE of the difference between the prediction and the target
+    rmspe = compute_rmspe(y_val, predict)
+
+    return rmspe.round(4)
+
+# our decision trees regressor model using the functions defined above
+def decision_trees_regressor(data, maxdep, est=1):
+    #encode and transform
+    encoded_data = encode(data)
+    
+    # deleting rows with null values and getting rid of some columns
+    cleaned_data = delete_nulls(encoded_data)
+    
+    # splitting the data into features and target
+    X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
+    
+    # decision tree regression model
+    dtc = tree.DecisionTreeRegressor(max_depth=maxdep, random_state=42, criterion='mse')
+    dtc.fit(X_train, y_train)
+    predict = dtc.predict(X_val)
+    
+    # computing the RMSPE of the difference between the prediction and the target
+    rmspe = compute_rmspe(y_val, predict)
+
+    return rmspe.round(4)
+    
+# our boosted trees regressor model using the functions defined above
+def xgb_regressor(data, est, maxdep):
+    #encode and transform
+    encoded_data = encode(data)
+    
+    # deleting rows with null values and getting rid of some columns
+    cleaned_data = delete_nulls(encoded_data)
+    
+    # splitting the data into features and target
+    X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
+    
+    # decision tree regression model
+    xgbr = xgb.XGBRegressor(max_depth=maxdep,learning_rate=0.1,n_estimators=est,n_jobs=1)
+    xgbr.fit(X_train, y_train)
+    predict = xgbr.predict(X_val)
+
     
     # computing the RMSPE of the difference between the prediction and the target
     rmspe = compute_rmspe(y_val, predict)
