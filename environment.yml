@@ -1,4 +1,4 @@
-name: base
+name: minicomp_AAA
 channels:
   - defaults
 dependencies:
@@ -326,4 +326,3 @@ dependencies:
     - thinc==7.4.1
     - wasabi==0.8.0
     - xgboost==0.90
-prefix: /Users/albert/anaconda3
