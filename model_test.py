@@ -192,7 +192,7 @@ def random_forest_regressor(data1, data2):
     X2, y2 = split(cleaned_data2)
     
     # linear regression model
-    rt = RandomForestRegressor(criterion='mse',n_estimators=110,max_depth=9,n_jobs=-1)
+    rt = RandomForestRegressor(criterion='mse',n_estimators=80,max_depth=20,n_jobs=-1)
     rt.fit(X1, y1)
     predict = rt.predict(X2)
     
@@ -243,7 +243,7 @@ def xgb_regressor(data1, data2):
     X2, y2 = split(cleaned_data2)    
     
     # decision tree regression model
-    xgbr = xgb.XGBRegressor(max_depth=9,learning_rate=0.3,n_estimators=90,n_jobs=-1)
+    xgbr = xgb.XGBRegressor(max_depth=6,learning_rate=0.3,n_estimators=500,n_jobs=-1)
     xgbr.fit(X1, y1)
     predict = xgbr.predict(X2)
 
