@@ -135,6 +135,10 @@ def extra_trees_regressor(data):
     # splitting the data into features and target
     X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
     
+    # scaling the features for train and test set
+    #X_train = scale(X_train)
+    #X_test = scale(X_test)
+    
     # linear regression model
     et = ExtraTreesRegressor(criterion='mse',n_estimators=20, max_depth=9, n_jobs=-1)
     et.fit(X_train, y_train)
@@ -155,6 +159,10 @@ def random_forest_regressor(data):
     
     # splitting the data into features and target
     X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
+    
+    # scaling the features for train and test set
+    #X_train = scale(X_train)
+    #X_test = scale(X_test)
     
     # linear regression model
     rt = RandomForestRegressor(criterion='mse',n_estimators=110,max_depth=9,n_jobs=-1)
@@ -177,6 +185,10 @@ def decision_trees_regressor(data):
     # splitting the data into features and target
     X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
     
+    # scaling the features for train and test set
+    #X_train = scale(X_train)
+    #X_test = scale(X_test)
+    
     # decision tree regression model
     dtc = tree.DecisionTreeRegressor(max_depth=5, random_state=42, criterion='mse')
     dtc.fit(X_train, y_train)
@@ -198,8 +210,12 @@ def xgb_regressor(data):
     # splitting the data into features and target
     X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
     
+    # scaling the features for train and test set
+    #X_train = scale(X_train)
+    #X_test = scale(X_test)
+    
     # decision tree regression model
-    xgbr = xgb.XGBRegressor(max_depth=9,learning_rate=0.1,n_estimators=100,n_jobs=1)
+    xgbr = xgb.XGBRegressor(max_depth=9,learning_rate=0.1,n_estimators=90,n_jobs=1)
     xgbr.fit(X_train, y_train)
     predict = xgbr.predict(X_test)
 
