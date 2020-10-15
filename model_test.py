@@ -41,35 +41,24 @@ def encode(data):
     #data.loc[:, 'Month'] = mean_encode(data.copy(), 'Month', 'Sales')
     
     # transform the StateHoliday column into the numerical categories '1' and '0'
-    data.loc[:, "StateHoliday"] = data.loc[:, "StateHoliday"].apply(lambda x: 1 if ((x == "a") or (x == "b")) else 0)
+    data.loc[:, "StateHoliday"] = data.loc[:, "StateHoliday"].apply(lambda x: 0 if ((x == "a") or (x == "b") or (x == "c")) else 1)
     return data
 
 #drop columns and rows with null values
 def delete_nulls(data):
     data = data.drop(columns=["CompetitionOpenSinceMonth", "CompetitionOpenSinceYear",
-                              "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval", "Date", "Customers", "Week"])
+                              "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval", "Date", "Customers"])
     data = data[~(data.loc[:, "DayOfWeek"].isnull()) &
-                ~(data.loc[:, "Sales"].isnull()) &
                 ~(data.loc[:, "Open"].isnull()) &
                 ~(data.loc[:, "Promo"].isnull()) &
                 ~(data.loc[:, "Promo2"].isnull()) &
                 ~(data.loc[:, "SchoolHoliday"].isnull()) &
-                ~(data.loc[:, "CompetitionDistance"].isnull()) &
-                ~(data.loc[:, "Sales"] == 0.0)]
-    return data
-
-def delete_nulls2(data):
-    data = data.drop(columns=["Date", "Customers", "Week", "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval"])
-    data = data[~(data.loc[:, "DayOfWeek"].isnull()) &
-                ~(data.loc[:, "Sales"].isnull()) &
-                ~(data.loc[:, "Open"].isnull()) &
-                ~(data.loc[:, "Promo"].isnull()) &
-                ~(data.loc[:, "Promo2"].isnull()) &
-                ~(data.loc[:, "SchoolHoliday"].isnull()) &
-                ~(data.loc[:, "CompetitionDistance"].isnull()) &
-                ~(data.loc[:, "Sales"] == 0.0)]
-    data.loc[:, "CompetitionOpenSinceMonth"].fillna(0, inplace=True)
-    data.loc[:, "CompetitionOpenSinceYear"].fillna(0, inplace=True)
+                ~(data.loc[:, "StateHoliday"].isnull()) &
+                ~(data.loc[:, "CompetitionDistance"].isnull())]
+    if 'Sales' in data.columns:
+        data = data[~(data.loc[:, "Sales"].isnull()) &
+                    ~(data.loc[:, "Sales"] == 0.0)]
+    #data.loc[:, "DayOfWeek"] = data.loc[:, "DayOfWeek"]**3
     return data
 
 # feature scaling
@@ -94,83 +83,121 @@ def split_train_test(data):
     
     return X_train, X_test, X_val, y_train, y_test, y_val
 
+# splitting features and target back apart
+def split(data):
+    x_train = data.copy(deep=True).drop(columns=["Sales"])
+    y_train = data.loc[:, "Sales"]
+    return x_train, y_train
+
 # defining evaluation metric
 def compute_rmspe(actual, prediction):
     rmspe = np.sqrt(np.mean(np.square(((actual - prediction) / actual)), axis=0)) 
     return rmspe
 
+# using the mean of the entire training set as a first prediction
+def lazy_estimator(target):
+    lazy_estimator_predictions = pd.DataFrame(target.copy())
+    lazy_estimator_predictions.loc[:, 'lazy_predicted_price'] = target.mean()
+    predict = lazy_estimator_predictions.loc[:, 'lazy_predicted_price']
+    return predict
+
+# our baseline model using the functions defined above
+def baseline(data1, data2):
+    # deleting rows with null values and getting rid of some columns
+    cleaned_data1 = delete_nulls(data1)
+    cleaned_data2 = delete_nulls(data2)
+    
+    # splitting the data into features and target
+    X1, y1 = split(cleaned_data1)
+    X2, y2 = split(cleaned_data2)
+    
+    # calculating the prediction which is simply the mean here
+    predict = lazy_estimator(y1)
+    
+    # computing the RMSPE of the difference between the prediction and the target
+    rmspe = compute_rmspe(y2, predict)*100
+
+    print("the RMSPE of the baseline model (mean) is {}%".format(rmspe.round(4)))
+
 # our linear regression model using the functions defined above
-def linear_regression(data):
+def linear_regression(data1, data2):
     # encode and transform
-    encoded_data = encode(data)
+    encoded_data1 = encode(data1)
+    encoded_data2 = encode(data2)
     
     # deleting rows with null values and getting rid of some columns
-    cleaned_data = delete_nulls(encoded_data)
+    cleaned_data1 = delete_nulls(encoded_data1)
+    cleaned_data2 = delete_nulls(encoded_data2)
         
     # splitting the data into features and target
-    X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
+    #X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
+    # splitting the data into features and target
+    X1, y1 = split(cleaned_data1)
+    X2, y2 = split(cleaned_data2)
     
     # scaling the features for train and test set
-    X_train = scale(X_train)
-    X_test = scale(X_test)
+    X1 = scale(X1)
+    X2 = scale(X2)
     
     # linear regression model
     lr = LinearRegression()
-    lr.fit(X_train, y_train)
-    predict = lr.predict(X_test)
+    lr.fit(X1, y1)
+    predict = lr.predict(X2)
     
     # computing the RMSPE of the difference between the prediction and the target
-    rmspe = compute_rmspe(y_test, predict)*100
+    rmspe = compute_rmspe(y2, predict)*100
 
     print("the RMSPE of the linear regression model is {}%".format(rmspe.round(4)))
 
 # our extra trees model using the functions defined above
-def extra_trees_regressor(data):
+def extra_trees_regressor(data1, data2):
     # encode and transform
-    encoded_data = encode(data)
+    encoded_data1 = encode(data1)
+    encoded_data2 = encode(data2)
     
     # deleting rows with null values and getting rid of some columns
-    cleaned_data = delete_nulls(encoded_data)
-    
+    cleaned_data1 = delete_nulls(encoded_data1)
+    cleaned_data2 = delete_nulls(encoded_data2)
+        
     # splitting the data into features and target
-    X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
-    
-    # scaling the features for train and test set
-    #X_train = scale(X_train)
-    #X_test = scale(X_test)
+    #X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
+    # splitting the data into features and target
+    X1, y1 = split(cleaned_data1)
+    X2, y2 = split(cleaned_data2)
     
     # linear regression model
     et = ExtraTreesRegressor(criterion='mse',n_estimators=20, max_depth=9, n_jobs=-1)
-    et.fit(X_train, y_train)
-    predict = et.predict(X_test)
+    et.fit(X1, y1)
+    predict = et.predict(X2)
     
     # computing the RMSPE of the difference between the prediction and the target
-    rmspe = compute_rmspe(y_test, predict)*100
+    rmspe = compute_rmspe(y2, predict)*100
 
     print("the RMSPE of the extra trees model is {}%".format(rmspe.round(4)))
 
 # our random forest model using the functions defined above
-def random_forest_regressor(data):
+def random_forest_regressor(data1, data2):
     # encode and transform
-    encoded_data = encode(data)
+    encoded_data1 = encode(data1)
+    encoded_data2 = encode(data2)
     
     # deleting rows with null values and getting rid of some columns
-    cleaned_data = delete_nulls(encoded_data)
-    
+    cleaned_data1 = delete_nulls(encoded_data1)
+    cleaned_data2 = delete_nulls(encoded_data2)
+        
     # splitting the data into features and target
-    X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
-    
-    # scaling the features for train and test set
-    #X_train = scale(X_train)
-    #X_test = scale(X_test)
+    #X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
+    # splitting the data into features and target
+    X1, y1 = split(cleaned_data1)
+    X2, y2 = split(cleaned_data2)
     
     # linear regression model
     rt = RandomForestRegressor(criterion='mse',n_estimators=110,max_depth=9,n_jobs=-1)
-    rt.fit(X_train, y_train)
-    predict = rt.predict(X_test)
+    rt.fit(X1, y1)
+    predict = rt.predict(X2)
     
     # computing the RMSPE of the difference between the prediction and the target
-    rmspe = compute_rmspe(y_test, predict)*100
+    rmspe = compute_rmspe(y2, predict)*100
 
     print("the RMSPE of the random forest model is {}%".format(rmspe.round(4)))
 
@@ -200,27 +227,28 @@ def decision_trees_regressor(data):
     print("the RMSPE of the decision trees regressor model is {}%".format(rmspe.round(4)))
     
 # our boosted trees regressor model using the functions defined above
-def xgb_regressor(data):
+def xgb_regressor(data1, data2):
     # encode and transform
-    encoded_data = encode(data)
+    encoded_data1 = encode(data1)
+    encoded_data2 = encode(data2)
     
     # deleting rows with null values and getting rid of some columns
-    cleaned_data = delete_nulls(encoded_data)
-    
+    cleaned_data1 = delete_nulls(encoded_data1)
+    cleaned_data2 = delete_nulls(encoded_data2)
+        
     # splitting the data into features and target
-    X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
-    
-    # scaling the features for train and test set
-    #X_train = scale(X_train)
-    #X_test = scale(X_test)
+    #X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
+    # splitting the data into features and target
+    X1, y1 = split(cleaned_data1)
+    X2, y2 = split(cleaned_data2)    
     
     # decision tree regression model
-    xgbr = xgb.XGBRegressor(max_depth=9,learning_rate=0.1,n_estimators=90,n_jobs=1)
-    xgbr.fit(X_train, y_train)
-    predict = xgbr.predict(X_test)
+    xgbr = xgb.XGBRegressor(max_depth=9,learning_rate=0.3,n_estimators=90,n_jobs=-1)
+    xgbr.fit(X1, y1)
+    predict = xgbr.predict(X2)
 
     
     # computing the RMSPE of the difference between the prediction and the target
-    rmspe = compute_rmspe(y_test, predict)*100
+    rmspe = compute_rmspe(y2, predict)*100
 
     print("the RMSPE of the boosted trees model is {}%".format(rmspe.round(4)))
