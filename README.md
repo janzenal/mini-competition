@@ -6,19 +6,19 @@ This folder contains several machine learning models for predicting sales at Ros
 
 To have the notebook running locally, you need to follow these steps:
 
-1) Clone the repo: `git clone https://github.com/Pensive1881/mini-competitionAAA.git`
+1) Clone the repo: `git clone https://github.com/janzenal/mini-competitionAAA.git`
 2) Inside the folder of the clone repo, create a conda environment: `conda env create -f environment.yml -n minicomp_AAA`
 3) Activate the virtual environment: `conda activate minicomp_AAA`
 4) Run Jupyter: `jupyter lab`
 
-Obs.: environment.yml is conda's equivalent of requirements.txt
-
 ## Data
 
-The data folder contains the csv files store, train and test which can be used to train and test you model
+The data folder contains the csv files store, train and test which can be used to train and test you model.
 
 ## Notebook
  
-The notebook contains a short summary of the reasing behind preparing the data and setting up the different models. 
+The notebook contains two notebooks:
 
-The final test can be done with the notebook.
+model_training.ipynb for examining the train data and training different models on it.
+
+model_testing.ipynb for testing the models on the test data.
