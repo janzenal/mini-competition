@@ -37,6 +37,8 @@ def encode(data):
     data.loc[:, 'Assortment'] = mean_encode(data.copy(), 'Assortment', 'Sales')
     data.loc[:, 'Store'] = mean_encode(data.copy(), 'Store', 'Sales')
     data.loc[:, 'DayOfWeek'] = mean_encode(data.copy(), 'DayOfWeek', 'Sales')
+    data.loc[:, 'Week'] = mean_encode(data.copy(), 'Week', 'Sales')
+    data.loc[:, 'Month'] = mean_encode(data.copy(), 'Month', 'Sales')
     
     # transform the StateHoliday column into the numerical categories '1' and '0'
     data.loc[:, "StateHoliday"] = data.loc[:, "StateHoliday"].apply(lambda x: 1 if ((x == "a") or (x == "b")) else 0)

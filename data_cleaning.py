@@ -21,6 +21,12 @@ def loading_data(data1, data2):
 
     # merging the store table with the train table
     data = pd.merge(data1, data2, how='left', on='Store')
+    
+    #converting Date column to datetime format and extracting month and week
+    data.loc[:, 'Date']= pd.to_datetime(data.loc[:, 'Date'])
+    data.loc[:, 'Month'] = data.loc[:, 'Date'].dt.month.astype('int64')
+    data.loc[:, 'Week'] = data.loc[:, 'Date'].dt.week.astype('int64')
+    data.loc[:, 'WeekOfMonth'] = data.loc[:, 'Week']%4
 
     return data
 
