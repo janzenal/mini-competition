@@ -36,7 +36,9 @@ def encode(data):
     data.loc[:, 'StoreType'] = mean_encode(data.copy(), 'StoreType', 'Sales')
     data.loc[:, 'Assortment'] = mean_encode(data.copy(), 'Assortment', 'Sales')
     data.loc[:, 'Store'] = mean_encode(data.copy(), 'Store', 'Sales')
-    data.loc[:, 'DayOfWeek'] = mean_encode(data.copy(), 'DayOfWeek', 'Sales')
+    #data.loc[:, 'DayOfWeek'] = mean_encode(data.copy(), 'DayOfWeek', 'Sales')
+    #data.loc[:, 'WeekOfMonth'] = mean_encode(data.copy(), 'WeekOfMonth', 'Sales')
+    #data.loc[:, 'Month'] = mean_encode(data.copy(), 'Month', 'Sales')
     
     # transform the StateHoliday column into the numerical categories '1' and '0'
     data.loc[:, "StateHoliday"] = data.loc[:, "StateHoliday"].apply(lambda x: 1 if ((x == "a") or (x == "b")) else 0)
@@ -45,15 +47,29 @@ def encode(data):
 #drop columns and rows with null values
 def delete_nulls(data):
     data = data.drop(columns=["CompetitionOpenSinceMonth", "CompetitionOpenSinceYear",
-                              "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval", "Date", "Promo2"])
+                              "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval", "Date", "Customers", "Week"])
     data = data[~(data.loc[:, "DayOfWeek"].isnull()) &
                 ~(data.loc[:, "Sales"].isnull()) &
-                ~(data.loc[:, "Customers"].isnull()) &
                 ~(data.loc[:, "Open"].isnull()) &
                 ~(data.loc[:, "Promo"].isnull()) &
+                ~(data.loc[:, "Promo2"].isnull()) &
                 ~(data.loc[:, "SchoolHoliday"].isnull()) &
                 ~(data.loc[:, "CompetitionDistance"].isnull()) &
                 ~(data.loc[:, "Sales"] == 0.0)]
+    return data
+
+def delete_nulls2(data):
+    data = data.drop(columns=["Date", "Customers", "Week", "Promo2SinceWeek", "Promo2SinceYear", "PromoInterval"])
+    data = data[~(data.loc[:, "DayOfWeek"].isnull()) &
+                ~(data.loc[:, "Sales"].isnull()) &
+                ~(data.loc[:, "Open"].isnull()) &
+                ~(data.loc[:, "Promo"].isnull()) &
+                ~(data.loc[:, "Promo2"].isnull()) &
+                ~(data.loc[:, "SchoolHoliday"].isnull()) &
+                ~(data.loc[:, "CompetitionDistance"].isnull()) &
+                ~(data.loc[:, "Sales"] == 0.0)]
+    data.loc[:, "CompetitionOpenSinceMonth"].fillna(0, inplace=True)
+    data.loc[:, "CompetitionOpenSinceYear"].fillna(0, inplace=True)
     return data
 
 # feature scaling
@@ -183,7 +199,7 @@ def xgb_regressor(data):
     X_train, X_test, X_val, y_train, y_test, y_val = split_train_test(cleaned_data)
     
     # decision tree regression model
-    xgbr = xgb.XGBRegressor(max_depth=9,learning_rate=0.1,n_estimators=90,n_jobs=1)
+    xgbr = xgb.XGBRegressor(max_depth=9,learning_rate=0.1,n_estimators=100,n_jobs=1)
     xgbr.fit(X_train, y_train)
     predict = xgbr.predict(X_test)
 
