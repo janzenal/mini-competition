@@ -7,8 +7,8 @@ This folder contains several machine learning models for predicting sales at Ros
 To have the notebook running locally, you need to follow these steps:
 
 1) Clone the repo: `git clone https://github.com/janzenal/mini-competitionAAA.git`
-2) Inside the folder of the clone repo, create a conda environment: `conda env create -f environment.yml -n minicomp_AAA`
-3) Activate the virtual environment: `conda activate minicomp_AAA`
+2) Inside the folder of the clone repo, create a conda environment: `conda env create -f environment.yml -n minicomp`
+3) Activate the virtual environment: `conda activate minicomp`
 4) Run Jupyter: `jupyter lab`
 
 ## Data
