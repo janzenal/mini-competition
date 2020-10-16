@@ -1,4 +1,4 @@
-name: minicomp_AAA
+name: mini-competition
 channels:
   - defaults
 dependencies:
