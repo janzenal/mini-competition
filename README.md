@@ -1,4 +1,4 @@
-# mini-competitionAAA
+# mini-competition
 
 This folder contains several machine learning models for predicting sales at Rossmann. The models are each trained on the data provided and are ready to be tested on the provided test data.
 
@@ -6,7 +6,7 @@ This folder contains several machine learning models for predicting sales at Ros
 
 To have the notebook running locally, you need to follow these steps:
 
-1) Clone the repo: `git clone https://github.com/janzenal/mini-competitionAAA.git`
+1) Clone the repo: `git clone https://github.com/janzenal/mini-competition.git`
 2) Inside the folder of the clone repo, create a conda environment: `conda env create -f environment.yml -n minicomp`
 3) Activate the virtual environment: `conda activate minicomp`
 4) Run Jupyter: `jupyter lab`
